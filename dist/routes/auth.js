@@ -45,7 +45,7 @@ router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         if (!isPasswordValid)
             return res.status(400).send({ message: "Invalid password" });
         const token = jsonwebtoken_1.default.sign({ _id: user._id }, process.env.TOKEN_SECRET || 'secret');
-        res.header('auth-token', token).send({ jwt: token, user });
+        res.status(200).send({ jwt: token, user });
     }
     else {
         res.status(400).send({ message: 'There is no such user' });
