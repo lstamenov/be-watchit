@@ -8,47 +8,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-const User_1 = __importDefault(require("../models/User"));
-const bcryptjs_1 = __importDefault(require("bcryptjs"));
+const auth_controller_1 = require("../controllers/auth.controller");
 const express_1 = require("express");
-const jsonwebtoken_1 = __importDefault(require("jsonwebtoken"));
 const router = (0, express_1.Router)();
 router.post("/register", (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, password, email } = req.body;
-    try {
-        const salt = yield bcryptjs_1.default.genSalt(10);
-        const hashedPassword = yield bcryptjs_1.default.hash(password, salt);
-        const user = yield User_1.default.create({
-            username,
-            password: hashedPassword,
-            email,
-            showsList: [],
-            moviesList: [],
-            avatarURL: "",
-        });
-        const savedUser = yield user.save();
-        res.send(savedUser);
+    const result = yield (0, auth_controller_1.register)(req.body);
+    if (result) {
+        res.send(result);
     }
-    catch (err) {
-        res.status(400).send(err);
-    }
+    res.status(400).send({ errorCode: 400, message: "Username or Email already in use" });
 }));
 router.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
-    const { username, password } = req.body;
-    const user = yield User_1.default.findOne({ username });
-    if (user) {
-        const isPasswordValid = yield bcryptjs_1.default.compare(password, user.password);
-        if (!isPasswordValid)
-            return res.status(400).send({ message: "Invalid password" });
-        const token = jsonwebtoken_1.default.sign({ _id: user._id }, process.env.TOKEN_SECRET || 'secret');
-        res.status(200).send({ jwt: token, user });
-    }
-    else {
-        res.status(400).send({ message: 'There is no such user' });
-    }
+    const result = yield (0, auth_controller_1.login)(req.body);
+    res.status((result === null || result === void 0 ? void 0 : result.jwt) ? 200 : 400).send(result);
 }));
 exports.default = router;
