@@ -1,75 +1,128 @@
 import { Request, Response, Router } from "express";
-import verifyToken from '../validators/verifyToken';
-import { checkIfMovieIsAlreadyAdded, getUserFromRequest } from "../utils";
+import verifyToken from "../validators/verifyToken";
+import getUserFromRequest from "../utils/getUserFromRequest";
+import checkIfMovieIsAlreadyAdded from "../utils/checkIfMovieIsAlreadyAdded";
+import apiHandler from "../utils/apiHandler";
+import {
+  getUserData,
+  changeUserAvatar,
+  addMovieToList,
+  addShowToList,
+  removeMovieFromList,
+  removeShowFromList,
+} from "../controllers/profile.controller";
+
+type UserCredentials = { _id: string };
+
+interface ModifyMovies {
+  userCredentials: UserCredentials;
+  id: number;
+}
 
 const router: Router = Router();
 
-router.get('/user', verifyToken, async (req: Request, res: Response) => { 
-  try {
-    const user = await getUserFromRequest(req.body.userCredentials._id);
-    res.send(user);
-  } catch (e: any) {
-    res.status(401).send({ message: e.message });
+router.get(
+  "/user",
+  verifyToken,
+  async (
+    req: Request<{}, {}, { userCredentials: UserCredentials }>,
+    res: Response
+  ) => {
+    const {
+      userCredentials: { _id },
+    } = req.body;
+    apiHandler({
+      handler: getUserData,
+      params: { id: _id },
+      errorCode: 401,
+      res,
+    });
   }
-});
+);
 
-router.put('/avatar', verifyToken, async (req: Request, res: Response) => { 
-  try {
-    const user = await getUserFromRequest(req.body.userCredentials._id);
-    user.avatarURL = req.body.avatar;
-    await user.save();
-    res.status(200).send({ message: 'Avatar changed successfully!' });
-  } catch (e: any) {
-    res.status(401).send({ message: e.message });
+router.put(
+  "/avatar",
+  verifyToken,
+  async (
+    req: Request<{}, {}, { userCredentials: UserCredentials; avatar: string }>,
+    res: Response
+  ) => {
+    const { avatar, userCredentials } = req.body;
+    apiHandler({
+      handler: changeUserAvatar,
+      params: { avatar, id: userCredentials._id },
+      errorCode: 401,
+      res,
+    });
   }
-});
+);
 
-router.post('/movies', verifyToken, async (req: Request, res: Response) => {
-  try {
-    const user = await getUserFromRequest(req.body.userCredentials._id);
-    const movieId = req.body.id;
-    checkIfMovieIsAlreadyAdded('movie', movieId, user);
-    user.moviesList.push(movieId);
-    user.save();
-    res.status(200).send({ message: 'Movie added successfully!' });
-  } catch (e: any) {
-    res.status(401).send({ message: e.message });
+router.post(
+  "/movies",
+  verifyToken,
+  async (req: Request<{}, {}, ModifyMovies>, res: Response) => {
+    const {
+      id,
+      userCredentials: { _id },
+    } = req.body;
+    apiHandler({
+      handler: addMovieToList,
+      params: { movieId: id, userId: _id },
+      errorCode: 400,
+      res,
+    });
   }
-});
+);
 
-router.post('/shows', verifyToken, async (req: Request, res: Response) => {
-  try {
-    const user = await getUserFromRequest(req.body.userCredentials._id);
-    const showId = req.body.id;
-    checkIfMovieIsAlreadyAdded('show', showId, user);
-    user.showsList.push(showId);
-    user.save();
-    res.status(200).send({ message: 'Show added successfully!' });
-  } catch (e: any) {
-    res.status(401).send({ message: e.message });
+router.post(
+  "/shows",
+  verifyToken,
+  async (req: Request<{}, {}, ModifyMovies>, res: Response) => {
+    const {
+      id,
+      userCredentials: { _id },
+    } = req.body;
+    apiHandler({
+      handler: addShowToList,
+      params: { showId: id, userId: _id },
+      errorCode: 400,
+      res,
+    });
   }
-});
+);
 
-router.delete('/movies', verifyToken, async (req: Request, res: Response) => {
-  try {
-    const user = await getUserFromRequest(req.body.userCredentials._id);
-    user.moviesList = user.moviesList.filter((movieId) => movieId !== req.body.id);
-    user.save();
-    res.status(200).send({ message: 'Movie deleted successfully!' });
-  } catch (e: any) {
-    res.status(401).send({ message: e.message });
+router.delete(
+  "/movies",
+  verifyToken,
+  async (req: Request<{}, {}, ModifyMovies>, res: Response) => {
+    const {
+      id,
+      userCredentials: { _id },
+    } = req.body;
+    apiHandler({
+      handler: removeMovieFromList,
+      params: { movieId: id, userId: _id },
+      errorCode: 400,
+      res,
+    });
   }
-});
+);
 
-router.delete('/shows', verifyToken, async (req: Request, res: Response) => {
-  try {
-    const user = await getUserFromRequest(req.body.userCredentials._id);
-    user.showsList = user.showsList.filter((showId) => showId !== req.body.id);
-    user.save();
-    res.status(200).send({ message: 'Show deleted successfully!' });
-  } catch (e: any) {
-    res.status(401).send({ message: e.message });
+router.delete(
+  "/shows",
+  verifyToken,
+  async (req: Request<{}, {}, ModifyMovies>, res: Response) => {
+    const {
+      id,
+      userCredentials: { _id },
+    } = req.body;
+    apiHandler({
+      handler: removeShowFromList,
+      params: { showId: id, userId: _id },
+      errorCode: 400,
+      res,
+    });
   }
-});
+);
 
 export default router;

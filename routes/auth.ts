@@ -1,25 +1,15 @@
-import User from "../models/User";
-import bcrypt from 'bcryptjs';
 import { register, login } from "../controllers/auth.controller";
 import { Request, Response, Router } from "express";
-import jwt from 'jsonwebtoken';
+import apiHandler from "../utils/apiHandler";
 
 const router: Router = Router();
 
-router.post("/register",  async (req: Request, res: Response) => {
-  const result = await register(req.body);
-
-  if (result) {
-    res.send(result);
-  }
-
-  res.status(400).send({ errorCode: 400, message: "Username or Email already in use" });
+router.post("/register", async (req: Request, res: Response) => {
+  apiHandler({ handler: register, params: req.body, errorCode: 400, res });
 });
 
-router.post('/login', async (req: Request, res: Response) => {
-  const result = await login(req.body);
-
-    res.status(result?.jwt ? 200 : 400).send(result);
+router.post("/login", async (req: Request, res: Response) => {
+  apiHandler({ handler: login, params: req.body, errorCode: 403, res });
 });
 
 export default router;

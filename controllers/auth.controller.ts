@@ -1,6 +1,6 @@
-import bcrypt from 'bcryptjs';
-import User from '../models/User';
-import jwt from 'jsonwebtoken';
+import bcrypt from "bcryptjs";
+import User from "../models/User";
+import jwt from "jsonwebtoken";
 
 const register = async (params: {
   username: string;
@@ -25,26 +25,26 @@ const register = async (params: {
     const savedUser = await user.save();
     return savedUser;
   } catch (err) {
-    return null;
+    throw new Error("Username or Email already in use");
   }
 };
 
-const login = async (params: { username: string, password: string }) => {
+const login = async (params: { username: string; password: string }) => {
   const { username, password } = params;
 
   const user = await User.findOne({ username });
   if (user) {
     const isPasswordValid = await bcrypt.compare(password, user.password);
-    if (!isPasswordValid) return { message: "Invalid password" };
+    if (!isPasswordValid) throw new Error("Invalid password");
 
-    const token = jwt.sign({ _id: user._id }, process.env.TOKEN_SECRET || 'secret');
-   return { jwt: token, user };
+    const token = jwt.sign(
+      { _id: user._id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 12 },
+      process.env.TOKEN_SECRET || "secret"
+    );
+    return { jwt: token, user };
   } else {
-    return { message: 'There is no such user' };
+    throw new Error("There is no such user");
   }
 };
 
-export {
-  register,
-  login,
-};
+export { register, login };
