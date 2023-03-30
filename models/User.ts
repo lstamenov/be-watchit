@@ -29,7 +29,7 @@ const userSchema = new Schema<UserI>({
   },
 });
 
-const User = model('User', userSchema);
+const User = model<UserI>('User', userSchema);
 User.createIndexes();
 
 export default User;

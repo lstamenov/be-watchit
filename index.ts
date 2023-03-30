@@ -1,23 +1,25 @@
+require("express-async-errors");
+import dotenv from "dotenv";
+dotenv.config();
 import express, { Application } from "express";
 import cors from "cors";
-import authRoute from "./routes/auth";
-import profileRoute from "./routes/profile";
-import dotenv from "dotenv";
-import { connectDB } from './config';
+import mongoose from "mongoose";
+import { PORT, DB_CONNECT_STRING } from './config';
+import errorHandler from "./miiddlewares/errorHandler";
+import userRoute from './controllers/user.controller';
+
 
 const app: Application = express();
-dotenv.config();
-
 const start = async () => {
   try {
-    await connectDB();
+    await mongoose.connect(DB_CONNECT_STRING);
 
     app.use(cors({ origin: "*" }));
     app.use(express.json());
-    app.use(authRoute);
-    app.use(profileRoute);
+    app.use(userRoute);
+    app.use('*', errorHandler);
 
-    app.listen(process.env.PORT || 3001, () => console.log("Server started"));
+    app.listen(PORT, () => console.log('Server started on port: ' + PORT));
   } catch (error) {
     console.error(error);
     process.exit(1);

@@ -1,8 +1,9 @@
 "use strict";
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.connectDB = void 0;
-const db_1 = __importDefault(require("./db"));
-exports.connectDB = db_1.default;
+exports.PORT = exports.DB_CONNECT_STRING = exports.TOKEN_SECRET = void 0;
+const TOKEN_SECRET = process.env.TOKEN_SECRET || "mecmec";
+exports.TOKEN_SECRET = TOKEN_SECRET;
+const DB_CONNECT_STRING = process.env.DB_CONNECT || "";
+exports.DB_CONNECT_STRING = DB_CONNECT_STRING;
+const PORT = process.env.PORT || 3001;
+exports.PORT = PORT;
