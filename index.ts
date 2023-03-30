@@ -17,7 +17,7 @@ const start = async () => {
     app.use(cors({ origin: "*" }));
     app.use(express.json());
     app.use(userRoute);
-    app.use('*', errorHandler);
+    app.use(errorHandler);
 
     app.listen(PORT, () => console.log('Server started on port: ' + PORT));
   } catch (error) {
