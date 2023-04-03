@@ -26,8 +26,8 @@ router.get(
       userCredentials: { _id },
     } = req.body;
 
-    const user = await service.getUserById(_id);
-    res.send(user);
+    const result = await service.authUser(_id);
+    res.send(result);
   }
 );
 

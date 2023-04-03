@@ -12,8 +12,17 @@ export default class UserService {
     this.userRepository = userRepository;
   }
 
-  async getUserById(id: string): Promise<UserDTO> {
+  private async getUserById(id: string): Promise<UserDTO> {
     return this.userRepository.findById(id);
+  }
+
+  async authUser(id: string): Promise<{ user: UserDTO; jwt: string }> {
+    const user = await this.getUserById(id);
+    const token = jwt.sign(
+      { _id: user._id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 12 },
+      TOKEN_SECRET
+    );
+    return { jwt: token, user };
   }
 
   private movieAlreadyAdded(movieId: number, user: UserDTO): void {
