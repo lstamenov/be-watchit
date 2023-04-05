@@ -28,7 +28,7 @@ const start = () => __awaiter(void 0, void 0, void 0, function* () {
         app.use((0, cors_1.default)({ origin: "*" }));
         app.use(express_1.default.json());
         app.use(user_controller_1.default);
-        app.use('*', errorHandler_1.default);
+        app.use(errorHandler_1.default);
         app.listen(config_1.PORT, () => console.log('Server started on port: ' + config_1.PORT));
     }
     catch (error) {

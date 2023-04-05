@@ -22,8 +22,8 @@ const repository = new UserRepository_1.default(User_1.default);
 const service = new UserService_1.default(repository);
 router.get("/user", verifyToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { userCredentials: { _id }, } = req.body;
-    const user = yield service.getUserById(_id);
-    res.send(user);
+    const result = yield service.authUser(_id);
+    res.send(result);
 }));
 router.put("/avatar", verifyToken_1.default, (req, res) => __awaiter(void 0, void 0, void 0, function* () {
     const { avatar, userCredentials } = req.body;

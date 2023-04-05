@@ -32,7 +32,7 @@ export default class UserService {
 
   private showAlreadyAdded(showId: number, user: UserDTO): void {
     const isShowAlreadyAdded = user.showsList.find((id) => id === showId);
-    if (isShowAlreadyAdded) throw new AppError("Movie already added", 400);
+    if (isShowAlreadyAdded) throw new AppError("Show already added", 400);
   }
 
   async changeAvatar(avatar: string, userId: string) {
@@ -85,7 +85,7 @@ export default class UserService {
 
       return user;
     } catch (err) {
-      throw new AppError("Username or Email already in use", 400);
+      throw new AppError("CREDENTIALS_IN_USE", 400);
     }
   }
 
@@ -93,7 +93,7 @@ export default class UserService {
     const user = await this.userRepository.findByUserName(username);
     if (user) {
       const isPasswordValid = await bcrypt.compare(password, user.password);
-      if (!isPasswordValid) throw new AppError("Invalid password", 400);
+      if (!isPasswordValid) throw new AppError("INVALID_PASSWORD", 400);
 
       const token = jwt.sign(
         { _id: user._id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 12 },
@@ -101,7 +101,7 @@ export default class UserService {
       );
       return { jwt: token, user };
     } else {
-      throw new AppError("There is no such user", 400);
+      throw new AppError("NO_SUCH_USER", 400);
     }
   }
 }

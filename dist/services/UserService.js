@@ -25,6 +25,13 @@ class UserService {
             return this.userRepository.findById(id);
         });
     }
+    authUser(id) {
+        return __awaiter(this, void 0, void 0, function* () {
+            const user = yield this.getUserById(id);
+            const token = jsonwebtoken_1.default.sign({ _id: user._id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 12 }, config_1.TOKEN_SECRET);
+            return { jwt: token, user };
+        });
+    }
     movieAlreadyAdded(movieId, user) {
         const isMovieAlreadyAdded = user.moviesList.find((id) => id === movieId);
         if (isMovieAlreadyAdded)
@@ -33,7 +40,7 @@ class UserService {
     showAlreadyAdded(showId, user) {
         const isShowAlreadyAdded = user.showsList.find((id) => id === showId);
         if (isShowAlreadyAdded)
-            throw new AppError_1.default("Movie already added", 400);
+            throw new AppError_1.default("Show already added", 400);
     }
     changeAvatar(avatar, userId) {
         return __awaiter(this, void 0, void 0, function* () {
@@ -78,7 +85,7 @@ class UserService {
                 return user;
             }
             catch (err) {
-                throw new AppError_1.default("Username or Email already in use", 400);
+                throw new AppError_1.default("CREDENTIALS_IN_USE", 400);
             }
         });
     }
@@ -88,12 +95,12 @@ class UserService {
             if (user) {
                 const isPasswordValid = yield bcryptjs_1.default.compare(password, user.password);
                 if (!isPasswordValid)
-                    throw new AppError_1.default("Invalid password", 400);
+                    throw new AppError_1.default("INVALID_PASSWORD", 400);
                 const token = jsonwebtoken_1.default.sign({ _id: user._id, exp: Math.floor(Date.now() / 1000) + 60 * 60 * 12 }, config_1.TOKEN_SECRET);
                 return { jwt: token, user };
             }
             else {
-                throw new AppError_1.default("There is no such user", 400);
+                throw new AppError_1.default("NO_SUCH_USER", 400);
             }
         });
     }
