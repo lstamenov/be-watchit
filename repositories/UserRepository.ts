@@ -23,6 +23,12 @@ export default class UserRepository {
     user.save();
   }
 
+  async changePassword(newPassword: string, userId: string) {
+    const user: UserDTO = await this.findById(userId);
+    user.password = newPassword;
+    user.save();
+  }
+
   async addMovie(movieId: number, userId: string) {
     const user = await this.findById(userId);
     user.moviesList.push(movieId);

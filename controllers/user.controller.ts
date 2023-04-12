@@ -11,6 +11,12 @@ interface ModifyMoviesBody {
   id: number;
 }
 
+interface PasswordChangeBody {
+  userCredentials: UserCredentials;
+  oldPassword: string;
+  newPassword: string;
+}
+
 const router: Router = Router();
 const repository: UserRepository = new UserRepository(User);
 const service: UserService = new UserService(repository);
@@ -126,5 +132,16 @@ router.post(
     res.send(user);
   }
 );
+
+router.put("/change-password", verifyToken,  async (req: Request<{}, {}, PasswordChangeBody>, res: Response) => {
+  const {
+    userCredentials: { _id },
+    oldPassword,
+    newPassword,
+  } = req.body;
+
+  const result = await service.changePassword(oldPassword, newPassword, _id);
+  res.send(result); 
+});
 
 export default router;

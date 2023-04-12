@@ -41,6 +41,18 @@ export default class UserService {
     return { message: "Avatar changed successfully!" };
   }
 
+  async changePassword(oldPassword: string, newPassword: string, userId: string) {
+    const user: UserDTO = await this.userRepository.findById(userId);
+    const isPasswordValid = await bcrypt.compare(oldPassword, user.password);
+    if (!isPasswordValid) throw new AppError("INVALID_PASSWORD", 400);
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(newPassword, salt);
+    await this.userRepository.changePassword(hashedPassword, userId);
+
+    return { message: "Password changed successfully" };
+  }
+
   async addMovie(movieId: number, userId: string) {
     const user = await this.getUserById(userId);
     this.movieAlreadyAdded(movieId, user);
